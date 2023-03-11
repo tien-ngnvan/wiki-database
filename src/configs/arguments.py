@@ -57,9 +57,13 @@ class Arguments:
 
         self.parser.add_argument(
             "--init_db",
-            type=bool,
+            action='store_true',
             help="whether to create a database or not",
-            default=True
+        )
+        self.parser.add_argument(
+            "--init_tb",
+            action='store_true',
+            help="whether to create a table or not",
         )
         self.parser.add_argument(
             "--dataset_name",
