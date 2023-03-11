@@ -3,7 +3,7 @@ import sys
 from tqdm.auto import tqdm
 import psycopg2
 from psycopg2 import Error
-
+import math
 from transformers import (
         DPRContextEncoderTokenizer,
         DPRContextEncoder
@@ -113,8 +113,8 @@ def insert_knowedges(
 
         cursor = connection.cursor()
 
-        for idx, article in enumerate(iter(snippets)):
-            passage_embd = retriever_model.get_ctx_embd(
+        for _, article in enumerate(iter(snippets)):
+            passage_embd = get_ctx_embd(
                     model_encoder=context_encoder,
                     tokenizer=context_tokenizer,
                     text=article["passage_text"]
