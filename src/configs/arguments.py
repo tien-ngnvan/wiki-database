@@ -10,6 +10,7 @@ class Arguments:
                 conflict_handler="resolve"
                 )
         self.init_environment()
+        self.init_dataset_args()
 
     def init_environment(self) -> None:
         """Provide environment variables
@@ -18,37 +19,65 @@ class Arguments:
             "--dbname",
             type=str,
             help="name of database to connect",
-            required=True,
+            default=""
         )
         self.parser.add_argument(
             "--host",
             type=str,
             help="host of database to connect",
-            required=True,
+            default=""
         )
         self.parser.add_argument(
             "--port",
             type=str,
             help="port of database to connect",
-            required=True,
+            default=""
         )
         self.parser.add_argument(
             "--user",
             type=str,
             help="user name to log in to database",
-            required=True,
+            default=""
         )
         self.parser.add_argument(
             "--pwd",
             type=str,
             help="password to log in to database",
-            required=True,
+            default=""
         )
         self.parser.add_argument(
             "--tbname",
             type=str,
             help="name of table in the database",
-            required=True,
+            default=""
+        )
+    def init_dataset_args(self):
+        """Provide dataset information
+        """
+
+        self.parser.add_argument(
+            "--init_db",
+            type=bool,
+            help="whether to create a database or not",
+            default=True
+        )
+        self.parser.add_argument(
+            "--dataset_name",
+            type=str,
+            help="name of dataset to be downloaded",
+            default="wiki_snippets"
+        )
+        self.parser.add_argument(
+            "--dataset_version",
+            type=str,
+            help="name of version of the dataset",
+            default="wiki40b_en_100_0"
+        )
+        self.parser.add_argument(
+            "--streaming",
+            type=bool,
+            help="Whether tp use streaming mode or not",
+            default=True
         )
 
     def parse(self):
