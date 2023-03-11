@@ -19,8 +19,11 @@ from model.retriever_model import (
          )
 
 import logging
+import dotenv
 
 logger = logging.getLogger(__name__)
+
+dotenv.load_dotenv()
 
 PGDBNAME=os.getenv("DBNAME", "wiki_pgvector")
 PGHOST=os.getenv("HOST", "localhost")
