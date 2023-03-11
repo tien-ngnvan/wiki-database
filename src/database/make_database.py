@@ -1,6 +1,6 @@
 import os
 import sys
-from torch import values_copy
+from torch import batch_norm_backward_elemt
 from tqdm.auto import tqdm
 import psycopg2
 from psycopg2 import Error
@@ -10,6 +10,9 @@ from transformers import (
         DPRContextEncoder
         )
 import datasets
+from typing import (
+        List
+        )
 
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
@@ -114,34 +117,61 @@ def insert_knowedges(
                                       password=PGPWD)
 
         cursor = connection.cursor()
+        def _insert(
+                batch_titles: List[str],
+                batch_names: List[str],
+                batch_contents: List[str]
+                ) -> None:
+
+            passage_embd = get_ctx_embd(
+                    model_encoder=context_encoder,
+                    tokenizer=context_tokenizer,
+                    text=batch_contents
+                    )
+            embd = [str(list(passage_embd[i].cpu().detach().numpy().reshape(-1)))
+                    for i in range(passage_embd.size[0])
+                    ]
+
+            values =  str(tuple(zip(batch_titles, batch_names, batch_contents, embd)))
+
+            sql_insert_query = f"""
+                    INSERT INTO {TB_WIKI} (title, name, content, embedd)
+                    VALUES {values};"""
+            result = cursor.execute(sql_insert_query)
+            connection.commit()
+
         batch_titles = []
         batch_names = []
         batch_contents = []
-        for idx, article in enumerate(iter(snippets)):
+        for _, article in enumerate(iter(snippets)):
             batch_titles.append(article["section_title"])
             batch_names.append(article["article_title"])
             batch_contents.append(article["passage_text"])
             if len(batch_contents) == BATCH:
-                passage_embd = get_ctx_embd(
-                        model_encoder=context_encoder,
-                        tokenizer=context_tokenizer,
-                        text=batch_contents
-                        )
-                embd = [str(list(passage_embd[i].cpu().detach().numpy().reshape(-1)))
-                        for i in range(passage_embd.size[0])
-                        ]
-
-                values =  str(tuple(zip(batch_titles, batch_names, batch_contents, embd)))
-
-                sql_insert_query = f"""
-                        INSERT INTO {TB_WIKI} (title, name, content, embedd)
-                        VALUES {values};"""
-                result = cursor.execute(sql_insert_query)
-                connection.commit()
-
+                assert len(batch_titles) == len(batch_names) == len(batch_contents), \
+                        f"len(batch_titles): {len(batch_titles)} "\
+                        f"len(batch_names): {len(batch_names)}"\
+                        f"len(batch_contents): {len(batch_contents)}"
+                _insert(
+                        batch_titles=batch_titles,
+                        batch_names=batch_names,
+                        batch_contents=batch_contents
+                )
                 batch_titles.clear()
                 batch_names.clear()
                 batch_titles.clear()
+
+        if batch_contents:
+            assert len(batch_titles) == len(batch_names) == len(batch_contents), \
+                    f"len(batch_titles): {len(batch_titles)} "\
+                    f"len(batch_names): {len(batch_names)}"\
+                    f"len(batch_contents): {len(batch_contents)}"
+
+            _insert(
+                    batch_titles=batch_titles,
+                    batch_names=batch_names,
+                    batch_contents=batch_contents
+            )
 
 
         logger.info(f"Insert knowledges to {TB_WIKI} successfully")
