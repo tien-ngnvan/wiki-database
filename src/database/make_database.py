@@ -1,5 +1,6 @@
 import os
 import sys
+from torch import values_copy
 from tqdm.auto import tqdm
 import psycopg2
 from psycopg2 import Error
@@ -31,6 +32,7 @@ PGPORT=os.getenv("PORT", "5432")
 PGUSER=os.getenv("USER", "wiki_ad")
 PGPWD=os.getenv("PASSWORD", "55235")
 TB_WIKI=os.getenv("TB_WIKI", "wiki_tb")
+BATCH=os.getenv("BATCH", 16)
 
 def create_postgres_db() -> None:
     """Create a database to contain a data table
@@ -112,18 +114,35 @@ def insert_knowedges(
                                       password=PGPWD)
 
         cursor = connection.cursor()
+        batch_titles = []
+        batch_names = []
+        batch_contents = []
+        for idx, article in enumerate(iter(snippets)):
+            batch_titles.append(article["section_title"])
+            batch_names.append(article["article_title"])
+            batch_contents.append(article["passage_text"])
+            if len(batch_contents) == BATCH:
+                passage_embd = get_ctx_embd(
+                        model_encoder=context_encoder,
+                        tokenizer=context_tokenizer,
+                        text=batch_contents
+                        )
+                embd = [str(list(passage_embd[i].cpu().detach().numpy().reshape(-1)))
+                        for i in range(passage_embd.size[0])
+                        ]
 
-        for _, article in enumerate(iter(snippets)):
-            passage_embd = get_ctx_embd(
-                    model_encoder=context_encoder,
-                    tokenizer=context_tokenizer,
-                    text=article["passage_text"]
-                    )
-            embd = str(list(passage_embd.cpu().detach().numpy().reshape(-1)))
+                values =  str(tuple(zip(batch_titles, batch_names, batch_contents, embd)))
 
-            sql_insert_query = f"""INSERT INTO {TB_WIKI} (title, name, content, embedd) VALUES (%s, %s, %s, %s)"""
-            result = cursor.execute(sql_insert_query, (article['section_title'], article['article_title'], article['passage_text'], embd))
-            connection.commit()
+                sql_insert_query = f"""
+                        INSERT INTO {TB_WIKI} (title, name, content, embedd)
+                        VALUES {values}"""
+                result = cursor.execute(sql_insert_query)
+                connection.commit()
+
+                batch_titles.clear()
+                batch_names.clear()
+                batch_titles.clear()
+
 
         logger.info(f"Insert knowledges to {TB_WIKI} successfully")
 
