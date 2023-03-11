@@ -12,9 +12,13 @@ logger = logging.getLogger(__name__)
 def main():
     arguments = Arguments()
     args = arguments.parse()
-    if args.init_db:
+    if args.init_db and not args.init_tb:
         make_database.create_postgres_db()
         make_database.create_wiki_table()
+    elif args.init_tb and not args.init_db:
+        make_database.create_wiki_table()
+    else:
+        ValueError("Database and table are created at the same time, or just a table is created")
 
     encoder_model, model_tokenizer = retriever_model.load_dpr_context_encoder(
             model_name_or_path="vblagoje/dpr-ctx_encoder-single-lfqa-wiki"
