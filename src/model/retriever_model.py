@@ -1,4 +1,9 @@
-from typing import Tuple
+from typing import (
+        Tuple,
+        Union,
+        List
+        )
+
 from transformers import (
         DPRContextEncoderTokenizer,
         DPRContextEncoder
@@ -22,7 +27,7 @@ def load_dpr_context_encoder(
 def get_ctx_embd(
         model_encoder: DPRContextEncoder,
         tokenizer: DPRContextEncoderTokenizer,
-        text: str
+        text: Union[str, List[str]]
         ) -> torch.tensor:
     """Get knowledge embedding
 
