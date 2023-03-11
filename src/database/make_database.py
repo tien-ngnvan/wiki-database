@@ -135,7 +135,7 @@ def insert_knowedges(
 
                 sql_insert_query = f"""
                         INSERT INTO {TB_WIKI} (title, name, content, embedd)
-                        VALUES {values}"""
+                        VALUES {values};"""
                 result = cursor.execute(sql_insert_query)
                 connection.commit()
 
