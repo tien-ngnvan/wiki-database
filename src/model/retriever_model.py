@@ -42,5 +42,5 @@ def get_ctx_embd(
     with torch.no_grad():
         model_output = model_encoder(**encoded_input)
 
-    return model_output["pool_output"]
+    return model_output["pooler_output"]
 
