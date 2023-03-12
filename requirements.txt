@@ -5,6 +5,7 @@ scikit-learn
 scipy
 tqdm
 transformers
+apache-beam
 datasets
 psycopg2-binary
 pydantic
