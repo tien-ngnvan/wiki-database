@@ -16,6 +16,8 @@ def main():
         make_database.create_wiki_table()
     elif args.init_tb and not args.init_db:
         make_database.create_wiki_table()
+    elif not args.init_tb and not args.init_db:
+        logger.warning("Make sure your database and table exist")
     else:
         ValueError("Database and table are created at the same time, or just a table is created")
 
