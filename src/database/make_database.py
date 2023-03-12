@@ -1,18 +1,20 @@
 import os
 import sys
-from torch import batch_norm_backward_elemt
 from tqdm.auto import tqdm
 import psycopg2
 from psycopg2 import Error
 import math
 from transformers import (
         DPRContextEncoderTokenizer,
-        DPRContextEncoder
+        DPRContextEncoder,
+        ViltLayer
         )
 import datasets
 from typing import (
         List
         )
+
+import torch
 
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
@@ -35,7 +37,7 @@ PGPORT=os.getenv("PGPORT", "5432")
 PGUSER=os.getenv("PGUSER", "wiki_ad")
 PGPWD=os.getenv("PGPWD", "55235")
 TB_WIKI=os.getenv("TB_WIKI", "wiki_tb")
-BATCH=os.getenv("BATCH", 16)
+BATCH=int(os.getenv("BATCH", 16))
 
 def create_postgres_db() -> None:
     """Create a database to contain a data table
@@ -78,9 +80,9 @@ def create_wiki_table() -> None:
                 CREATE EXTENSION IF NOT EXISTS vector;
                 CREATE TABLE {TB_WIKI} (
                 id SERIAL PRIMARY KEY,
-                title VARCHAR,
-                name VARCHAR,
-                content VARCHAR,
+                title TEXT,
+                name TEXT,
+                content TEXT,
                 embedd vector(128));
                 '''
 
@@ -95,10 +97,11 @@ def create_wiki_table() -> None:
     except (Exception, Error) as err:
         logger.error(f"Error while connecting to PostgreSQL: {err}")
 
-def insert_knowedges(
+def insert_knowledges(
         context_encoder: DPRContextEncoder,
         context_tokenizer: DPRContextEncoderTokenizer,
-        snippets: datasets.iterable_dataset.IterableDataset
+        snippets: datasets.iterable_dataset.IterableDataset,
+        device: torch.device
         )->None:
     """Insert wiki snippets or knowledge to wiki table
 
@@ -120,33 +123,34 @@ def insert_knowedges(
         def _insert(
                 batch_titles: List[str],
                 batch_names: List[str],
-                batch_contents: List[str]
+                batch_contents: List[str],
+                device: torch.device
                 ) -> None:
 
             passage_embd = get_ctx_embd(
                     model_encoder=context_encoder,
                     tokenizer=context_tokenizer,
-                    text=batch_contents
+                    text=batch_contents,
+                    device=device
                     )
-            embd = [str(list(passage_embd[i].cpu().detach().numpy().reshape(-1)))
-                    for i in range(passage_embd.size[0])
+            embd = [str(list(passage_embd[i, :].cpu().detach().numpy().reshape(-1)))
+                    for i in range(passage_embd.size(0))
                     ]
-
-            values =  str(tuple(zip(batch_titles, batch_names, batch_contents, embd)))
-
+            values =  list(zip(batch_titles, batch_names, batch_contents, embd))
+            args = ','.join(cursor.mogrify("(%s,%s,%s,%s)", i).decode('utf-8') for i in values)
             sql_insert_query = f"""
                     INSERT INTO {TB_WIKI} (title, name, content, embedd)
-                    VALUES {values};"""
-            result = cursor.execute(sql_insert_query)
+                    VALUES"""
+            result = cursor.execute(sql_insert_query + (args))
             connection.commit()
 
         batch_titles = []
         batch_names = []
         batch_contents = []
-        for _, article in enumerate(iter(snippets)):
-            batch_titles.append(article["section_title"])
-            batch_names.append(article["article_title"])
-            batch_contents.append(article["passage_text"])
+        for _, article in tqdm(enumerate(iter(snippets))):
+            batch_titles.append(str(article["section_title"]))
+            batch_names.append(str(article["article_title"]))
+            batch_contents.append(str(article["passage_text"]))
             if len(batch_contents) == BATCH:
                 assert len(batch_titles) == len(batch_names) == len(batch_contents), \
                         f"len(batch_titles): {len(batch_titles)} "\
@@ -155,11 +159,12 @@ def insert_knowedges(
                 _insert(
                         batch_titles=batch_titles,
                         batch_names=batch_names,
-                        batch_contents=batch_contents
+                        batch_contents=batch_contents,
+                        device=device
                 )
                 batch_titles.clear()
                 batch_names.clear()
-                batch_titles.clear()
+                batch_contents.clear()
 
         if batch_contents:
             assert len(batch_titles) == len(batch_names) == len(batch_contents), \
@@ -170,7 +175,8 @@ def insert_knowedges(
             _insert(
                     batch_titles=batch_titles,
                     batch_names=batch_names,
-                    batch_contents=batch_contents
+                    batch_contents=batch_contents,
+                    device=device
             )
 
 
