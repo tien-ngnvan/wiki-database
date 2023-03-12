@@ -29,11 +29,11 @@ logger = logging.getLogger(__name__)
 
 dotenv.load_dotenv()
 
-PGDBNAME=os.getenv("DBNAME", "wiki_pgvector")
-PGHOST=os.getenv("HOST", "localhost")
-PGPORT=os.getenv("PORT", "5432")
-PGUSER=os.getenv("USER", "wiki_ad")
-PGPWD=os.getenv("PASSWORD", "55235")
+PGDBNAME=os.getenv("PGDBNAME", "wiki_pgvector")
+PGHOST=os.getenv("PGHOST", "localhost")
+PGPORT=os.getenv("PGPORT", "5432")
+PGUSER=os.getenv("PGUSER", "wiki_ad")
+PGPWD=os.getenv("PGPWD", "55235")
 TB_WIKI=os.getenv("TB_WIKI", "wiki_tb")
 BATCH=os.getenv("BATCH", 16)
 
