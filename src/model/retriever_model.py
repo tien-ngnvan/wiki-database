@@ -27,7 +27,8 @@ def load_dpr_context_encoder(
 def get_ctx_embd(
         model_encoder: DPRContextEncoder,
         tokenizer: DPRContextEncoderTokenizer,
-        text: Union[str, List[str]]
+        text: Union[str, List[str]],
+        device: torch.device
         ) -> torch.tensor:
     """Get knowledge embedding
 
@@ -43,7 +44,7 @@ def get_ctx_embd(
             truncation=True,
             max_length=512,
             return_tensors="pt"
-            )
+            ).to(device)
     with torch.no_grad():
         model_output = model_encoder(**encoded_input)
 
