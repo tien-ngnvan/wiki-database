@@ -97,11 +97,44 @@ def create_wiki_table() -> None:
     except (Exception, Error) as err:
         logger.error(f"Error while connecting to PostgreSQL: {err}")
 
+def count_row() -> int:
+    """Count the number of row in TB_WIKI
+
+    It helps us to keep inserting knowledge to the table
+    """
+    try:
+        connection = psycopg2.connect(dbname=PGDBNAME,
+                                      host=PGHOST,
+                                      port=PGPORT,
+                                      user=PGUSER,
+                                      password=PGPWD)
+        connection.autocommit = True
+
+        cursor = connection.cursor()
+        sql = f'''
+                SELECT count(*) FROM {TB_WIKI}
+                '''
+
+        cursor.execute(sql)
+        result = cursor.fetchone()[0]
+        logger.info(f"{TB_WIKI} is created successfully.")
+        print("result: ", result, type(result))
+
+        if connection:
+            cursor.close()
+            connection.close()
+            logger.info("PostgreSQL connection is closed.")
+        return result
+
+    except (Exception, psycopg2.Error) as err:
+        logger.error(f"Error while connecting to PostgreSQL: {err}")
+        return -1
+
 def insert_knowledges(
         context_encoder: DPRContextEncoder,
         context_tokenizer: DPRContextEncoderTokenizer,
         snippets: datasets.iterable_dataset.IterableDataset,
-        device: torch.device
+        device: torch.device,
         )->None:
     """Insert wiki snippets or knowledge to wiki table
 
@@ -141,13 +174,15 @@ def insert_knowledges(
             sql_insert_query = f"""
                     INSERT INTO {TB_WIKI} (title, name, content, embedd)
                     VALUES"""
-            result = cursor.execute(sql_insert_query + (args))
+            cursor.execute(sql_insert_query + (args))
             connection.commit()
-
+        current_id = count_row()
         batch_titles = []
         batch_names = []
         batch_contents = []
-        for _, article in tqdm(enumerate(iter(snippets))):
+        for idx, article in tqdm(enumerate(iter(snippets))):
+            if idx < current_id:
+                continue
             batch_titles.append(str(article["section_title"]))
             batch_names.append(str(article["article_title"]))
             batch_contents.append(str(article["passage_text"]))
