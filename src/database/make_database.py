@@ -117,8 +117,6 @@ def count_row() -> int:
 
         cursor.execute(sql)
         result = cursor.fetchone()[0]
-        logger.info(f"{TB_WIKI} is created successfully.")
-        print("result: ", result, type(result))
 
         if connection:
             cursor.close()
