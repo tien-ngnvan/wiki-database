@@ -8,6 +8,7 @@ pip install -r requirements.txt
 - Please access `.env` file to modify database information in order to connect to the database
 
 ## Implement
+### Create Wikipedia database
 - if there is no database exists, run:
 ```bash
 pthon src/run.py --init_db
@@ -20,3 +21,5 @@ python src/run.py --init_tb
 ```bash
 python src/run.py
 ```
+- This script automatically create Wikipedia database with ~17M data. If you want to create Wikipedia database with ~33M
+  data. add use argument: `--dataset_version wikipedia_en_100_0`
