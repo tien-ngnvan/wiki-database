@@ -28,3 +28,4 @@ python src/run.py
 ```bash
 python src/run.py --just_create_index
 ```
+*Note: When creating index, we try creating index with `4*sqrt(number_of_row)` first. If there were any error, It would automatically change creating index method with default cluster equals to 100*

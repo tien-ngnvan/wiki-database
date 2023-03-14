@@ -241,13 +241,19 @@ def create_index(
         cursor = connection.cursor()
         nlist =  round(2*math.sqrt(num_data))
 
-        sql = f'''
+        create_index_cluster_cmd = f'''
                 CREATE INDEX ON {TB_WIKI} USING ivfflat (embedd vector_ip_ops) WITH (lists = {nlist});
                 '''
-
-        cursor.execute(sql)
-        logger.info(f"Created index on {TB_WIKI} successfully")
-
+        create_index_default_cmd = f'''
+                CREATE INDEX ON {TB_WIKI} USING ivfflat (embedd vector_ip_ops);
+                '''
+        try:
+            logger.info(f"Creating index with {nlist} cluster")
+            cursor.execute(create_index_cluster_cmd)
+        except:
+            logger.error(f"Created index clustering on {TB_WIKI} was failed, try default settings")
+            cursor.execute(create_index_default_cmd)
+        logger.info("Create index successfully")
         if connection:
             cursor.close()
             connection.close()
