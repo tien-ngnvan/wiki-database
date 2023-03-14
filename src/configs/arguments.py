@@ -61,6 +61,11 @@ class Arguments:
             help="whether to create a database or not",
         )
         self.parser.add_argument(
+            "--just_create_index",
+            action='store_true',
+            help="You have data already inserted and just want to create index",
+        )
+        self.parser.add_argument(
             "--init_tb",
             action='store_true',
             help="whether to create a table or not",
