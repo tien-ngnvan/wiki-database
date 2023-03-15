@@ -376,6 +376,7 @@ def create_index(
         nlist =  round(2*math.sqrt(num_data))
 
         create_index_cluster_cmd = f'''
+                SET maintenance_work_mem TO '14 GB';
                 CREATE INDEX ON {tb_name} USING ivfflat (embedd vector_ip_ops) WITH (lists = {nlist});
                 '''
         create_index_default_cmd = f'''
