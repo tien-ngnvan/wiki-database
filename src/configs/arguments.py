@@ -83,6 +83,12 @@ class Arguments:
             default="wiki40b_en_100_0"
         )
         self.parser.add_argument(
+            "--client_data_path",
+            type=str,
+            help="Knowledge file which is provided by client",
+            default=""
+        )
+        self.parser.add_argument(
             "--streaming",
             type=bool,
             help="Whether tp use streaming mode or not",
