@@ -5,8 +5,18 @@ conda create -n wiki python==3.8 -y
 conda activate wiki
 pip install -r requirements.txt
 ```
+## .env
 - Please access `.env` file to modify database information in order to connect to the database
-
+```bash
+PGDBNAME="postgre"
+PGHOST="localhost"
+PGPORT="postgre"
+PGUSER="postgre"
+PGPWD="postgre"
+TB_WIKI="wiki_tb"
+TB_CLIENT="client_tb"
+BATCH=16
+```
 ## Implement
 ### Create Wikipedia database
 - if there is no database exists, run:
