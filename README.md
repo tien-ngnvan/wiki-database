@@ -1,4 +1,10 @@
 # wiki-database
+## Download postgreSQL 
+- PostgreSQL is used here which is taken from [pgvector](https://github.com/pgvector/pgvector) helps us speed up our retrieval task.
+- Go to `Docker-compose.yml` to change `user` and `password`
+```bash
+docker-compose up
+```
 ## Setup
 ```bash
 conda create -n wiki python==3.8 -y
