@@ -1,0 +1,13 @@
+numpy
+pandas
+matplotlib
+scikit-learn
+scipy
+tqdm
+transformers
+apache-beam
+datasets
+psycopg2-binary
+pydantic
+beautifulsoup4
+python-dotenv
