@@ -24,13 +24,13 @@ class Arguments:
         self.parser.add_argument(
             "--n_gpus",
             type=int,
-            help="name of database to connect",
+            help="number of availabel gpus",
             default=2
         )
         self.parser.add_argument(
             "--gpu_index",
             type=int,
-            help="name of database to connect",
+            help="current gpu",
             default=0
         )
         self.parser.add_argument(
