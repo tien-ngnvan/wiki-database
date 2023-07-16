@@ -61,7 +61,9 @@ def main():
                 context_encoder=encoder_model,
                 context_tokenizer=model_tokenizer,
                 snippets=wiki_snippets,
-                device=device
+                device=device, 
+                n_gpus=args.n_gpus, 
+                gpu_index=args.gpu_index
                 )
         make_database.create_index(
                 tb_name=TB_WIKI,
