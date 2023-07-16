@@ -41,7 +41,12 @@ def main():
         encoder_model, model_tokenizer = retriever_model.load_dpr_context_encoder(
                 model_name_or_path="vblagoje/dpr-ctx_encoder-single-lfqa-wiki"
                 )
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if torch.cuda.is_available(): 
+            device = torch.device(f"cuda:{args.gpu_index}")
+        else: 
+            device = torch.device("cpu")
+        
+        # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print("Start downloading dataset")
         encoder_model.to(device)
         encoder_model.eval()

@@ -22,6 +22,18 @@ class Arguments:
             default=""
         )
         self.parser.add_argument(
+            "--n_gpus",
+            type=int,
+            help="name of database to connect",
+            default=2
+        )
+        self.parser.add_argument(
+            "--gpu_index",
+            type=int,
+            help="name of database to connect",
+            default=0
+        )
+        self.parser.add_argument(
             "--host",
             type=str,
             help="host of database to connect",

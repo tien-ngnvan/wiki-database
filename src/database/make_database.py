@@ -171,6 +171,8 @@ def insert_knowledges(
         context_tokenizer: DPRContextEncoderTokenizer,
         snippets: datasets.iterable_dataset.IterableDataset,
         device: torch.device,
+        n_gpus: int, 
+        gpu_index: int
         )->None:
     """Insert wiki snippets or knowledge to wiki table
 
@@ -217,6 +219,9 @@ def insert_knowledges(
         batch_names = []
         batch_contents = []
         for idx, article in tqdm(enumerate(iter(snippets))):
+            if idx%n_gpus != gpu_index: 
+                continue
+
             if idx < current_id:
                 continue
             batch_titles.append(str(article["section_title"]))
