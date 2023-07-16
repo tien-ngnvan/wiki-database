@@ -26,7 +26,7 @@ CUDA_VISIBLE_DEVICES=0 python src/run.py --n_gpus 2 --gpu_index 0
 ```
 - At the second terminal, run:
 ```bash
-CUDA_VISIBLE_DEVICES=0 python src/run.py --n_gpus 2 --gpu_index 1
+CUDA_VISIBLE_DEVICES=1 python src/run.py --n_gpus 2 --gpu_index 1
 ```
 
 ### Create Wikipedia database
