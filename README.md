@@ -18,6 +18,17 @@ TB_CLIENT="client_tb"
 BATCH=16
 ```
 ## Implement
+### Multi process (hotfix)
+- create 2 terminal windows 
+- At the first terminal, run:
+```bash
+CUDA_VISIBLE_DEVICES=0 python src/run.py --n_gpus 2 --gpu_index 0
+```
+- At the second terminal, run:
+```bash
+CUDA_VISIBLE_DEVICES=0 python src/run.py --n_gpus 2 --gpu_index 1
+```
+
 ### Create Wikipedia database
 - if there is no database exists, run:
 ```bash
