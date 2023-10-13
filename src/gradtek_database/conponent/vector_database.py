@@ -252,7 +252,7 @@ class WikiSnippet:
             cursor = connection.cursor()
             logger.info("Database connection established")
             #Start the multi-process pool on all available CUDA devices
-            pool = self.passage_encoder.start_multi_process_pool()
+            pool = self.passage_encoder.start_multi_process_pool(target_devices=self.encoding_params.target_devices)
             
             def _insert(
                 batch_titles: List[str],
