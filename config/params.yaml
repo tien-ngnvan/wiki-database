@@ -5,7 +5,6 @@ encoding:
   target_devices: null
   multiprocessing: True
   embedding_size: 768
-  devices: ["cuda"]
   encoding: "utf-8"
   streaming: true
   num_proc: 4

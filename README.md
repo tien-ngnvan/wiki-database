@@ -7,22 +7,37 @@ docker-compose up
 ```
 ## Setup
 ```bash
-conda create -n wiki python==3.8 -y
+conda create -n wiki python==3.10 -y
 conda activate wiki
 pip install -r requirements.txt
 ```
-## .env
-- Please access `.env` file to modify database information in order to connect to the database
-```bash
-PGDBNAME="postgre"
-PGHOST="localhost"
-PGPORT="postgre"
-PGUSER="postgre"
-PGPWD="postgre"
-TB_WIKI="wiki_tb"
-TB_CLIENT="client_tb"
-BATCH=16
+## Parameters
+- modify your database configuration and encoding parameters in `./config/params.yaml`
+```yaml
+encoding:
+  context_model_name_or_path: sentence-transformers/msmarco-bert-base-dot-v5
+  dataset_name: wiki_snippets
+  dataset_version: wiki40b_en_100_0
+  target_devices: null
+  multiprocessing: True
+  embedding_size: 768
+  encoding: "utf-8"
+  streaming: true
+  num_proc: 4
+  purpose: "init_db"
+env: 
+  PGDBNAME: wikipedia_db
+  PGHOST: localhost
+  PGPORT: "5432"
+  PGUSER: postgresql
+  PGPWD: postgresql
+  TB_WIKI: wiki_tb
+  TB_CLIENT: client_tb
+  BATCH: 1024
 ```
+- `purpose`: If you wanted to initialize vector database, you could set `init_db`, if you already had your vector database initialized and just wanted to create index for speeding up querying, you would set `create_index`
+- `target_devices`: If you do multiprocessing encoding, you need to specify all available devices. If it is null, model will detect all available devices
+
 ## Implement
 ### Create Wikipedia database
 - if there is no database exists, run:
