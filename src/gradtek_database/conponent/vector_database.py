@@ -307,6 +307,31 @@ class WikiSnippet:
         except (Exception, psycopg2.Error) as e:
             logger.error(f"Failed inserting knowledge into {self.env_params.tb_name}: {e}")  
 
+    def drop_table(self, tbname: str): 
+        try:
+            logger.info("Creating index...")
+            connection = psycopg2.connect(
+                dbname=self.env_params.db_name,                        
+                host=self.env_params.db_host,
+                port=self.env_params.db_port,
+                user=self.env_params.db_user,
+                password=self.env_params.db_pwd
+            )
+            connection.autocommit = True
+
+            cursor = connection.cursor()
+            # drop table accounts 
+            sql = f'''DROP TABLE {tbname} '''
+            cursor.execute(sql) 
+
+            if connection:
+                cursor.close()
+                connection.close()
+                logger.info(f"Table {tbname} dropped.")
+
+        except (Exception, psycopg2.Error) as err:
+            logger.error("Error while connecting to PostgreSQL", err)
+
     def create_index(
         self,
         tb_name: str,
@@ -354,15 +379,18 @@ class WikiSnippet:
             logger.error("Error while connecting to PostgreSQL", err)
     
     def pipeline(self): 
-        self.init_database()
-        self.init_table()
-        if self.encoding_params.purpose == "init_db":
-            if self.encoding_params.multiprocessing: 
-                self.insert_multiprocess()
-            else: 
-                self.insert()
-        num_data = self.count_row(self.env_params.tb_name)
-        self.create_index(
-            tb_name=self.env_params.tb_name, 
-            num_data=num_data
-        )
+        if self.env_params.drop_tb is not None: 
+            self.drop_table(tbname=self.env_params.drop_tb)
+        else:
+            self.init_database()
+            self.init_table()
+            if self.encoding_params.purpose == "init_db":
+                if self.encoding_params.multiprocessing: 
+                    self.insert_multiprocess()
+                else: 
+                    self.insert()
+            num_data = self.count_row(self.env_params.tb_name)
+            self.create_index(
+                tb_name=self.env_params.tb_name, 
+                num_data=num_data
+            )

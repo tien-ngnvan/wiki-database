@@ -44,3 +44,4 @@ class EnvParameters:
     db_pwd: str
     tb_name: str
     batch: int
+    drop_tb: Optional[str]

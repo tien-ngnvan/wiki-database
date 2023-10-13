@@ -31,13 +31,13 @@ env:
   PGPORT: "5432"
   PGUSER: postgresql
   PGPWD: postgresql
-  TB_WIKI: wiki_tb
-  TB_CLIENT: client_tb
+  TB_NAME: wikipedia
+  DROP_TB: null
   BATCH: 1024
 ```
 - `purpose`: If you wanted to initialize vector database, you could set `init_db`, if you already had your vector database initialized and just wanted to create index for speeding up querying, you would set `create_index`
 - `target_devices`: If you do multiprocessing encoding, you need to specify all available devices. If it is null, model will detect all available devices
-
+- `DROP_TB`: the table you want to drop. 
 ## Implement
 ### Create Wikipedia database
 - if there is no database exists, run:

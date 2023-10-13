@@ -77,13 +77,14 @@ class ConfigurationManager:
         env_params = self.param.env
 
         parameters = EnvParameters(
-            db_name=env_params.db_name,
-            db_host=env_params.db_host, 
-            db_port=env_params.db_port,
-            db_user=env_params.db_user,
-            db_pwd=env_params.db_pwd,
-            tb_name=env_params.tb_name,
-            batch=env_params.batch
+            db_name=env_params.PGDBNAME,
+            db_host=env_params.PGHOST, 
+            db_port=env_params.PGPORT,
+            db_user=env_params.PGUSER,
+            db_pwd=env_params.PGPWD,
+            tb_name=env_params.TB_NAME,
+            batch=env_params.BATCH, 
+            drop_tb=env_params.DROP_TB
         )
 
         return parameters
