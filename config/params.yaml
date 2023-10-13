@@ -1,0 +1,21 @@
+encoding:
+  context_model_name_or_path: sentence-transformers/msmarco-bert-base-dot-v5
+  dataset_name: wiki_snippets
+  dataset_version: wiki40b_en_100_0
+  target_devices: null
+  multiprocessing: True
+  embedding_size: 768
+  devices: ["cuda"]
+  encoding: "utf-8"
+  streaming: true
+  num_proc: 4
+  purpose: "init_db"
+env: 
+  PGDBNAME: wikipedia_db
+  PGHOST: localhost
+  PGPORT: "5432"
+  PGUSER: postgresql
+  PGPWD: postgresql
+  TB_WIKI: wiki_tb
+  TB_CLIENT: client_tb
+  BATCH: 1024

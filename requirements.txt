@@ -11,3 +11,5 @@ psycopg2-binary
 pydantic
 beautifulsoup4
 python-dotenv
+unstructured
+-e .
